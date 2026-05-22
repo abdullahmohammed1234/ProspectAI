@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0B0F14;
+  --surface: #111827;
+  --accent-blue: #4F8CFF;
+  --accent-green: #10B981;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #__next {
+  height: 100%;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: #e5e7eb;
+  background-image:
+    radial-gradient(circle at top left, rgba(79, 140, 255, 0.14), transparent 22%),
+    radial-gradient(circle at top right, rgba(16, 185, 129, 0.12), transparent 18%),
+    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.04), transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 22%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: rgba(79, 140, 255, 0.35);
+  color: white;
+}
+
+.container { @apply mx-auto px-6; }
+
+/* small utility tweaks */
+.card { @apply rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_18px_45px_rgba(0,0,0,0.2)] backdrop-blur-xl }
