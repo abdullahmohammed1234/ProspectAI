@@ -16,12 +16,15 @@ from app.ai.prompts import (
     HUNT_COMPANIES_PROMPT,
     LEAD_QUALIFICATION_PROMPT,
     OUTREACH_DRAFT_PROMPT,
+    RESEARCH_AGENT_PROMPT,
     SYSTEM_PROMPT,
 )
 from app.core.config import Settings, get_settings
 from app.models.ai import (
     CompanyHuntRequest,
     CompanyHuntResponse,
+    CompanyResearchAgentRequest,
+    CompanyResearchAgentResponse,
     CompanyResearchRequest,
     CompanyResearchResponse,
     DecisionMakerReasoningRequest,
@@ -71,6 +74,21 @@ class GeminiAIService:
             context=payload.context or "none provided",
         )
         return await self._generate_structured_json(prompt, CompanyResearchResponse)
+
+    async def research_agent(self, payload: CompanyResearchAgentRequest) -> CompanyResearchAgentResponse:
+        prompt = RESEARCH_AGENT_PROMPT.format(
+            company_name=payload.company_name,
+            company_domain=payload.company_domain or "unknown",
+            industry=payload.industry or "unknown",
+            geography=payload.geography or "unknown",
+            company_size=payload.company_size or "unknown",
+            business_model=payload.business_model or "unknown",
+            target_market=payload.target_market or "unspecified",
+            current_initiatives=", ".join(payload.current_initiatives) if payload.current_initiatives else "none provided",
+            signals=", ".join(payload.signals) if payload.signals else "none provided",
+            context=payload.context or "none provided",
+        )
+        return await self._generate_structured_json(prompt, CompanyResearchAgentResponse)
 
     async def lead_qualification(self, payload: LeadQualificationRequest) -> LeadQualificationResponse:
         prompt = LEAD_QUALIFICATION_PROMPT.format(

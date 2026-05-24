@@ -78,6 +78,75 @@ class CompanyResearchResponse(BaseModel):
 
     model_config = ConfigDict(extra="ignore")
 
+    @field_validator("confidence", mode="before")
+    @classmethod
+    def _normalize_confidence(cls, value: object) -> int:
+        if value is None:
+            return 0
+        # If already an int/float/bool
+        if isinstance(value, bool):
+            return int(value) * 100
+        if isinstance(value, (int, float)):
+            # If float between 0 and 1, scale to 0-100
+            if isinstance(value, float) and 0 <= value <= 1:
+                return int(round(value * 100))
+            return int(round(value))
+        # If string, try to parse numeric or map common labels
+        if isinstance(value, str):
+            s = value.strip()
+            # handle percentages like '85%'
+            if s.endswith("%"):
+                try:
+                    return int(round(float(s.rstrip("%"))))
+                except Exception:
+                    pass
+            # numeric string
+            try:
+                return int(round(float(s)))
+            except Exception:
+                pass
+            # common label mapping
+            label_map = {
+                "very high": 90,
+                "high": 80,
+                "moderate": 60,
+                "medium": 50,
+                "low": 20,
+                "very low": 10,
+                "unknown": 0,
+            }
+            lowered = s.lower()
+            for k, v in label_map.items():
+                if lowered == k:
+                    return v
+        # fallback
+        return 0
+
+
+class CompanyResearchAgentRequest(BaseModel):
+    company_name: str = Field(min_length=1, max_length=180)
+    company_domain: str | None = Field(default=None, max_length=180)
+    industry: str | None = Field(default=None, max_length=180)
+    geography: str | None = Field(default=None, max_length=180)
+    company_size: str | None = Field(default=None, max_length=180)
+    business_model: str | None = Field(default=None, max_length=200)
+    target_market: str | None = Field(default=None, max_length=300)
+    current_initiatives: list[str] = Field(default_factory=list)
+    signals: list[str] = Field(default_factory=list)
+    context: str | None = Field(default=None, max_length=3000)
+
+    model_config = ConfigDict(extra="ignore")
+
+
+class CompanyResearchAgentResponse(BaseModel):
+    research_summary: str
+    fit_indicators: list[str] = Field(default_factory=list)
+    pain_points: list[str] = Field(default_factory=list)
+    ai_adoption_signals: list[str] = Field(default_factory=list)
+    business_context: list[str] = Field(default_factory=list)
+
+    model_config = ConfigDict(extra="ignore")
+
 
 class LeadQualificationRequest(BaseModel):
     lead_id: str = Field(min_length=1, max_length=80)

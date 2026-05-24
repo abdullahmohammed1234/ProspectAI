@@ -66,6 +66,8 @@ COMPANY_RESEARCH_PROMPT = dedent(
     - buyer_pain_points
     - suggested_angles
     - confidence
+
+    Note: `confidence` MUST be an integer between 0 and 100 (higher means more confident). If you describe confidence with words (e.g., "High"), convert it to an approximate integer (for example: High=80, Medium=50, Low=20).
     """
 ).strip()
 
@@ -139,5 +141,43 @@ OUTREACH_DRAFT_PROMPT = dedent(
     - tone
     - personalization_points
     - call_to_action
+    """
+).strip()
+
+
+RESEARCH_AGENT_PROMPT = dedent(
+    """
+    You are ProspectAI's Research Agent.
+    Analyze the company deeply and produce practical, sales-usable insight.
+
+    Company name: {company_name}
+    Company domain: {company_domain}
+    Industry: {industry}
+    Geography: {geography}
+    Company size: {company_size}
+    Business model: {business_model}
+    Target market: {target_market}
+    Current initiatives: {current_initiatives}
+    Signals: {signals}
+    Additional context: {context}
+
+    Responsibilities:
+    - Analyze company information
+    - Detect business signals
+    - Infer operational pain points
+    - Summarize growth indicators
+
+    Guidance:
+    - Make the reasoning feel intelligent and actionable.
+    - Prioritize specific observations over generic statements.
+    - Highlight implications for GTM, operations, and AI-readiness.
+    - If information is uncertain, still provide best-effort hypotheses based on available signals.
+
+    Return JSON with:
+    - research_summary (string)
+    - fit_indicators (array of concise strings)
+    - pain_points (array of concise strings)
+    - ai_adoption_signals (array of concise strings)
+    - business_context (array of concise strings)
     """
 ).strip()
