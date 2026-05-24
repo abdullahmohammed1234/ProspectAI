@@ -142,9 +142,13 @@ OUTREACH_DRAFT_PROMPT = dedent(
     Return JSON with:
     - subject
     - body
-    - tone
-    - personalization_points
-    - call_to_action
+    - personalization_reasoning
+
+    Guidance:
+    - Keep the message concise, credible, and human.
+    - Reference real business context from the company, role, or signals provided.
+    - Avoid generic templates, hype, and spam language.
+    - Explain briefly why the message should feel relevant for this specific lead.
     """
 ).strip()
 

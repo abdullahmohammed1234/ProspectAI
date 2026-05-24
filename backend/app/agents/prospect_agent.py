@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from app.agents.outreach_drafting_agent import OutreachDraftingAgent
 from app.models.ai import OutreachDraftRequest
 from app.models.execution import ExecutionLevel, ExecutionLogEntry
 from app.models.lead import LeadRead, LeadStatus, OutreachDraft
@@ -12,6 +13,7 @@ from app.utils.time import utc_now
 class ProspectAgent:
     def __init__(self, ai_service: GeminiAIService | None = None) -> None:
         self.ai_service = ai_service
+        self.outreach_agent = OutreachDraftingAgent(ai_service=ai_service)
 
     async def run_mission(self, mission: MissionRead, leads: list[LeadRead]) -> list[ExecutionLogEntry]:
         logs: list[ExecutionLogEntry] = [
@@ -65,44 +67,22 @@ class ProspectAgent:
         return logs
 
     async def _generate_outreach_draft(self, mission: MissionRead, lead: LeadRead) -> OutreachDraft:
-        if self.ai_service is not None and self.ai_service.is_configured():
-            draft = await self.ai_service.outreach_draft(
-                OutreachDraftRequest(
-                    mission_name=mission.name,
-                    mission_objective=mission.objective,
-                    outreach_style=mission.outreach_style,
-                    lead_id=lead.id,
-                    full_name=lead.full_name,
-                    job_title=lead.job_title,
-                    company_name=lead.company_name,
-                    company_domain=lead.company_domain,
-                    signals=lead.signals,
-                    company_research=self._compose_company_context(lead),
-                    decision_maker_reasoning=self._compose_decision_maker_context(lead, mission),
-                )
+        draft = await self.outreach_agent.draft_outreach(
+            OutreachDraftRequest(
+                mission_name=mission.name,
+                mission_objective=mission.objective,
+                outreach_style=mission.outreach_style,
+                lead_id=lead.id,
+                full_name=lead.full_name,
+                job_title=lead.job_title,
+                company_name=lead.company_name,
+                company_domain=lead.company_domain,
+                signals=lead.signals,
+                company_research=self._compose_company_context(lead),
+                decision_maker_reasoning=self._compose_decision_maker_context(lead, mission),
             )
-            return OutreachDraft(
-                subject=draft.subject,
-                body=draft.body,
-                tone=draft.tone,
-                generated_at=utc_now(),
-            )
-
-        return OutreachDraft(
-            subject=f"{mission.name}: tailored follow-up for {lead.company_name}",
-            body=self._compose_body(mission, lead),
-            tone=mission.outreach_style,
-            generated_at=utc_now(),
         )
-
-    def _compose_body(self, mission: MissionRead, lead: LeadRead) -> str:
-        first_name = lead.full_name.split(" ", 1)[0]
-        return (
-            f"Hi {first_name},\n\n"
-            f"I took a look at {lead.company_name} and noticed a few signals that align with {mission.objective}. "
-            f"I would love to share a short idea on how ProspectAI could help your team move faster.\n\n"
-            f"Best,\nProspectAI"
-        )
+        return OutreachDraft(subject=draft.subject, body=draft.body, tone=mission.outreach_style, generated_at=utc_now())
 
     def _compose_company_context(self, lead: LeadRead) -> str:
         signals = ", ".join(lead.signals) if lead.signals else "none provided"

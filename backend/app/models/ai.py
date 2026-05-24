@@ -292,8 +292,6 @@ class OutreachDraftRequest(BaseModel):
 class OutreachDraftResponse(BaseModel):
     subject: str
     body: str
-    tone: str = Field(default="consultative")
-    personalization_points: list[str] = Field(default_factory=list)
-    call_to_action: str
+    personalization_reasoning: str
 
     model_config = ConfigDict(extra="ignore")

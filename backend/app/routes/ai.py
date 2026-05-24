@@ -5,6 +5,7 @@ import json
 from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 
+from app.agents.outreach_drafting_agent import OutreachDraftingAgent
 from app.agents.contact_identification_agent import ContactIdentificationAgent
 from app.agents.hunt_agent import HuntAgent
 from app.agents.qualification_agent import QualificationAgent
@@ -75,8 +76,8 @@ async def decision_maker_reasoning(
 
 @router.post("/outreach-draft", response_model=OutreachDraftResponse)
 async def outreach_draft(payload: OutreachDraftRequest, request: Request) -> OutreachDraftResponse:
-    service = get_ai_service(request)
-    return await service.outreach_draft(payload)
+    agent = OutreachDraftingAgent(ai_service=get_ai_service(request))
+    return await agent.draft_outreach(payload)
 
 
 @router.post("/outreach-draft/stream")
