@@ -18,5 +18,4 @@ async def create_mission(payload: MissionCreate, request: Request) -> MissionRea
 @router.post("/missions/{mission_id}/start", response_model=MissionStartResponse)
 async def start_mission(mission_id: str, request: Request) -> MissionStartResponse:
     service = MissionService(get_database(request), ai_service=get_ai_service(request))
-    mission, logs = await service.start_mission(mission_id)
-    return MissionStartResponse(mission=mission, logs=logs)
+    return await service.start_mission(mission_id)
