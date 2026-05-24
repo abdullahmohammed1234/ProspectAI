@@ -165,14 +165,58 @@ class LeadQualificationRequest(BaseModel):
 
 class LeadQualificationResponse(BaseModel):
     lead_id: str
-    qualification: str
-    score: int = Field(ge=0, le=100)
-    rationale: list[str] = Field(default_factory=list)
-    strengths: list[str] = Field(default_factory=list)
-    risks: list[str] = Field(default_factory=list)
-    recommended_next_action: str
+    fit_score: int = Field(ge=0, le=100)
+    qualification_reasoning: str
+    risk_assessment: list[str] = Field(default_factory=list)
+    confidence_score: int = Field(ge=0, le=100)
 
     model_config = ConfigDict(extra="ignore")
+
+    @field_validator("fit_score", "confidence_score", mode="before")
+    @classmethod
+    def _normalize_percentage(cls, value: object) -> int:
+        if value is None:
+            return 0
+        if isinstance(value, bool):
+            return int(value) * 100
+        if isinstance(value, (int, float)):
+            if isinstance(value, float) and 0 <= value <= 1:
+                return int(round(value * 100))
+            return int(round(value))
+        if isinstance(value, str):
+            text = value.strip()
+            if text.endswith("%"):
+                try:
+                    return int(round(float(text.rstrip("%"))))
+                except Exception:
+                    pass
+            try:
+                return int(round(float(text)))
+            except Exception:
+                pass
+            label_map = {
+                "very high": 90,
+                "high": 80,
+                "moderate": 60,
+                "medium": 50,
+                "low": 20,
+                "very low": 10,
+                "unknown": 0,
+            }
+            lowered = text.lower()
+            for label, score in label_map.items():
+                if lowered == label:
+                    return score
+        return 0
+
+    @field_validator("risk_assessment", mode="before")
+    @classmethod
+    def _normalize_risk_assessment(cls, value: object) -> list[str]:
+        if value is None:
+            return []
+        if isinstance(value, str):
+            return [value]
+        return [str(item) for item in value]
 
 
 class DecisionMakerReasoningRequest(BaseModel):

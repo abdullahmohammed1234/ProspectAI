@@ -35,7 +35,7 @@ GEMINI_REQUEST_TIMEOUT_SECONDS=30
 Available AI endpoints:
 
 - `POST /api/v1/ai/company-research`
-- `POST /api/v1/ai/lead-qualification`
+- `POST /api/v1/ai/lead-qualification` returns `fit_score`, `qualification_reasoning`, `risk_assessment`, and `confidence_score`
 - `POST /api/v1/ai/decision-maker-reasoning`
 - `POST /api/v1/ai/outreach-draft`
 - `POST /api/v1/ai/outreach-draft/stream` for NDJSON streaming output

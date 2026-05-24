@@ -6,6 +6,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 
 from app.agents.hunt_agent import HuntAgent
+from app.agents.qualification_agent import QualificationAgent
 from app.agents.research_agent import ResearchAgent
 from app.models.ai import (
     CompanyHuntRequest,
@@ -47,8 +48,8 @@ async def research(payload: CompanyResearchAgentRequest, request: Request) -> Co
 
 @router.post("/lead-qualification", response_model=LeadQualificationResponse)
 async def lead_qualification(payload: LeadQualificationRequest, request: Request) -> LeadQualificationResponse:
-    service = get_ai_service(request)
-    return await service.lead_qualification(payload)
+    agent = QualificationAgent(ai_service=get_ai_service(request))
+    return await agent.qualify_lead(payload)
 
 
 @router.post("/decision-maker-reasoning", response_model=DecisionMakerReasoningResponse)

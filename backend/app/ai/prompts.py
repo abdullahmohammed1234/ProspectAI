@@ -88,12 +88,16 @@ LEAD_QUALIFICATION_PROMPT = dedent(
 
     Return JSON with:
     - lead_id
-    - qualification
-    - score
-    - rationale
-    - strengths
-    - risks
-    - recommended_next_action
+    - fit_score
+    - qualification_reasoning
+    - risk_assessment
+    - confidence_score
+
+    Guidance:
+    - Score from 0-100 using the supplied lead score as a starting point.
+    - Reward senior decision-makers, strong buying signals, and mission overlap.
+    - Penalize weak timing, unclear ownership, and generic signals.
+    - Make the reasoning concise, specific, and explainable.
     """
 ).strip()
 
