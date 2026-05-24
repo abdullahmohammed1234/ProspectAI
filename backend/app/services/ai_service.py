@@ -12,6 +12,7 @@ from fastapi import Request
 
 from app.ai.prompts import (
     COMPANY_RESEARCH_PROMPT,
+    CONTACT_IDENTIFICATION_PROMPT,
     DECISION_MAKER_REASONING_PROMPT,
     HUNT_COMPANIES_PROMPT,
     LEAD_QUALIFICATION_PROMPT,
@@ -27,6 +28,8 @@ from app.models.ai import (
     CompanyResearchAgentResponse,
     CompanyResearchRequest,
     CompanyResearchResponse,
+    ContactIdentificationRequest,
+    ContactIdentificationResponse,
     DecisionMakerReasoningRequest,
     DecisionMakerReasoningResponse,
     LeadQualificationRequest,
@@ -89,6 +92,20 @@ class GeminiAIService:
             context=payload.context or "none provided",
         )
         return await self._generate_structured_json(prompt, CompanyResearchAgentResponse)
+
+    async def contact_identification(self, payload: ContactIdentificationRequest) -> ContactIdentificationResponse:
+        prompt = CONTACT_IDENTIFICATION_PROMPT.format(
+            company_name=payload.company_name,
+            company_domain=payload.company_domain or "unknown",
+            service_offering=payload.service_offering,
+            target_industry=payload.target_industry or "unspecified",
+            target_market=payload.target_market or "unspecified",
+            mission_objective=payload.mission_objective or "unspecified",
+            signals=", ".join(payload.signals) if payload.signals else "none provided",
+            company_research=payload.company_research or "none provided",
+            candidate_contacts=self._format_candidate_contacts(payload.candidate_contacts),
+        )
+        return await self._generate_structured_json(prompt, ContactIdentificationResponse)
 
     async def lead_qualification(self, payload: LeadQualificationRequest) -> LeadQualificationResponse:
         prompt = LEAD_QUALIFICATION_PROMPT.format(
@@ -320,6 +337,19 @@ class GeminiAIService:
                 return parsed
 
         raise ValueError("Gemini response was not valid JSON")
+
+    @staticmethod
+    def _format_candidate_contacts(candidates: list[Any]) -> str:
+        if not candidates:
+            return "none provided"
+
+        formatted: list[str] = []
+        for candidate in candidates:
+            name = getattr(candidate, "name", "unknown")
+            role = getattr(candidate, "role", "unknown")
+            linkedin_url = getattr(candidate, "linkedin_url", None) or "unknown"
+            formatted.append(f"{name} - {role} - {linkedin_url}")
+        return "; ".join(formatted)
 
     def _retry_delay(self, attempt: int) -> float:
         base_delay = 0.5 * (2**attempt)

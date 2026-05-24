@@ -148,6 +148,37 @@ class CompanyResearchAgentResponse(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
 
+class ContactCandidate(BaseModel):
+    name: str = Field(min_length=1, max_length=180)
+    role: str = Field(min_length=1, max_length=180)
+    linkedin_url: str | None = Field(default=None, max_length=300)
+
+    model_config = ConfigDict(extra="ignore")
+
+
+class ContactIdentificationRequest(BaseModel):
+    company_name: str = Field(min_length=1, max_length=180)
+    company_domain: str | None = Field(default=None, max_length=180)
+    service_offering: str = Field(min_length=1, max_length=500)
+    target_industry: str | None = Field(default=None, max_length=180)
+    target_market: str | None = Field(default=None, max_length=300)
+    mission_objective: str | None = Field(default=None, max_length=500)
+    signals: list[str] = Field(default_factory=list)
+    company_research: str | None = Field(default=None, max_length=4000)
+    candidate_contacts: list[ContactCandidate] = Field(default_factory=list)
+
+    model_config = ConfigDict(extra="ignore")
+
+
+class ContactIdentificationResponse(BaseModel):
+    name: str
+    role: str
+    linkedin_url_placeholder: str
+    contact_reasoning: str
+
+    model_config = ConfigDict(extra="ignore")
+
+
 class LeadQualificationRequest(BaseModel):
     lead_id: str = Field(min_length=1, max_length=80)
     full_name: str = Field(min_length=1, max_length=180)

@@ -5,6 +5,7 @@ import json
 from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 
+from app.agents.contact_identification_agent import ContactIdentificationAgent
 from app.agents.hunt_agent import HuntAgent
 from app.agents.qualification_agent import QualificationAgent
 from app.agents.research_agent import ResearchAgent
@@ -15,6 +16,8 @@ from app.models.ai import (
     CompanyResearchAgentResponse,
     CompanyResearchRequest,
     CompanyResearchResponse,
+    ContactIdentificationRequest,
+    ContactIdentificationResponse,
     DecisionMakerReasoningRequest,
     DecisionMakerReasoningResponse,
     LeadQualificationRequest,
@@ -44,6 +47,15 @@ async def company_research(payload: CompanyResearchRequest, request: Request) ->
 async def research(payload: CompanyResearchAgentRequest, request: Request) -> CompanyResearchAgentResponse:
     agent = ResearchAgent(ai_service=get_ai_service(request))
     return await agent.research_company(payload)
+
+
+@router.post("/contact-identification", response_model=ContactIdentificationResponse)
+async def contact_identification(
+    payload: ContactIdentificationRequest,
+    request: Request,
+) -> ContactIdentificationResponse:
+    agent = ContactIdentificationAgent(ai_service=get_ai_service(request))
+    return await agent.identify_contact(payload)
 
 
 @router.post("/lead-qualification", response_model=LeadQualificationResponse)

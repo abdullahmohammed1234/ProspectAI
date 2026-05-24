@@ -185,3 +185,37 @@ RESEARCH_AGENT_PROMPT = dedent(
     - business_context (array of concise strings)
     """
 ).strip()
+
+
+CONTACT_IDENTIFICATION_PROMPT = dedent(
+    """
+    Identify the best stakeholder for this outreach motion.
+
+    Company name: {company_name}
+    Company domain: {company_domain}
+    Service offering: {service_offering}
+    Target industry: {target_industry}
+    Target market: {target_market}
+    Mission objective: {mission_objective}
+    Signals: {signals}
+    Company research: {company_research}
+    Candidate contacts: {candidate_contacts}
+
+    Responsibilities:
+    - Identify the single best contact to pursue
+    - Match the contact's role to the service offering and mission objective
+    - Explain why this stakeholder is the highest-leverage entry point
+
+    Guidance:
+    - Prefer the person with the clearest ownership of the problem being solved.
+    - If candidate contacts are provided, choose the strongest one rather than inventing a new person.
+    - If no named contact is available, infer the most likely buying role and use a LinkedIn placeholder.
+    - Keep the reasoning concise, specific, and business-focused.
+
+    Return JSON with:
+    - name
+    - role
+    - linkedin_url_placeholder
+    - contact_reasoning
+    """
+).strip()
